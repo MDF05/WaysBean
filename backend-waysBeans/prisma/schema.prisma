@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  profile  Profile?
+  role     Role     @default(USER)
+  cart     Cart[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Profile {
+  id          Int           @id @default(autoincrement())
+  userId      Int           @unique
+  user        User?         @relation(fields: [userId], references: [id])
+  name        String        @unique
+  address     String?
+  gender      String?
+  phone       String?
+  imageUrl    String?
+  Transaction Transaction[]
+  Product     Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Product {
+  id          Int            @id @default(autoincrement())
+  name        String
+  description String
+  price       String
+  quantity    String
+  images      ImageProduct[]
+  profileId   Int?
+
+  Profile     Profile?      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  Transaction Transaction[]
+  Cart        Cart[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Cart {
+  id        Int  @id @default(autoincrement())
+  countItem Int  @default(1)
+  productId Int
+  userId    Int?
+
+  product Product @relation(fields: [productId], references: [id])
+  User    User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Transaction {
+  id            Int    @id @default(autoincrement())
+  transactionId String @unique
+  profileId     Int
+  productId     Int
+  countItem     Int    @default(1)
+  paymentType   String
+  address       String
+
+  profile Profile @relation(fields: [profileId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model ImageProduct {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  imageUrl  String
+  products  Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
