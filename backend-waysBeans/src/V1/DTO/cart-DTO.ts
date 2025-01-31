@@ -12,7 +12,7 @@ export interface CartDTO {
       name: string;
       description: string;
       price: string;
-      quantity: string;
+      quantity: number;
       profileId: number | null;
       createdAt: Date;
     };

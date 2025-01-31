@@ -2,11 +2,13 @@ import { Box, Button } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { CheckOutSchema, checkoutSchema } from "../../../../schemas/checkout-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TransactionDTO } from "../../../../DTO/transaction-DTO";
 import { PostMidtransPayment } from "./../../../../stores/checkout/async-checkout";
 import { cartCheckedDTO } from "../../../../DTO/cart-DTO";
-import { postTransactionAsync } from "../../../../stores/transaction/async-transaction";
 import { useAppDispatch, useAppSelector } from "../../../../stores/stores";
+import { TransactionDTO } from "../../../../DTO/transaction-DTO";
+import { postTransactionAsync } from "../../../../stores/transaction/async-transaction";
+import { GetProductAsync } from "../../../../stores/product/async-product";
+import { deleteManyCartByCartsIdAndUserIdAsync } from "../../../../stores/cart/async-cart";
 
 declare global {
   interface Window {
@@ -16,9 +18,10 @@ declare global {
 
 interface ButtonCheckoutProps {
   Product: cartCheckedDTO[];
+  onClose?: () => void;
 }
 
-export default function ButtonMultipleCheckout({ Product }: ButtonCheckoutProps): React.ReactNode {
+export default function ButtonMultipleCheckout({ Product, onClose }: ButtonCheckoutProps): React.ReactNode {
   const { handleSubmit, setValue } = useForm<CheckOutSchema>({ resolver: zodResolver(checkoutSchema) });
   const auth = useAppSelector((state) => state.auth);
   const user = useAppSelector((state) => state.profile);
@@ -49,31 +52,34 @@ export default function ButtonMultipleCheckout({ Product }: ButtonCheckoutProps)
 
   async function onCheckOut(event: any) {
     try {
-      alert("asu");
       const data = await dispatch(PostMidtransPayment(event)).unwrap();
 
       if (data.succes)
         window.snap.pay(`${data.content.token}`, {
-          // onSuccess: (res: any) => {
-          //   const { fraud_status, gross_amount, order_id, payment_type, status_code, status_message, transaction_id, transaction_status, transaction_time } = res;
-          //   const dataTransaction: TransactionDTO[] = Product.map((data) => {
-          //     return {
-          //       fraud_status,
-          //       gross_amount,
-          //       order_id,
-          //       payment_type,
-          //       status_code,
-          //       status_message,
-          //       transaction_id,
-          //       transaction_status,
-          //       transaction_time,
-          //       countItem: data.countItem,
-          //       productId: data.product.id,
-          //       profileId: user.profile.content.profile.id,
-          //     };
-          //   });
-          //   dispatch(postTransactionAsync(dataTransaction));
-          // },
+          onSuccess: async (res: any) => {
+            const { fraud_status, gross_amount, order_id, payment_type, status_code, status_message, transaction_id, transaction_status, transaction_time } = res;
+            const dataTransaction: TransactionDTO[] = Product.map((data) => {
+              return {
+                fraud_status,
+                gross_amount,
+                order_id,
+                payment_type,
+                status_code,
+                status_message,
+                transaction_id,
+                transaction_status,
+                transaction_time,
+                countItem: data.countItem,
+                productId: data.product.id,
+                profileId: user.profile.content.profile.id,
+                address: `${user?.profile?.content?.profile?.address}`,
+              };
+            });
+            await dispatch(postTransactionAsync(dataTransaction));
+            await dispatch(deleteManyCartByCartsIdAndUserIdAsync(Product.map((p) => p.product.id)));
+            await dispatch(GetProductAsync());
+            if (onClose) onClose();
+          },
           // onPending: (res: any) => {
           //   console.log("Pending", res);
           // },

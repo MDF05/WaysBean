@@ -1,4 +1,4 @@
-import { Transaction } from "@prisma/client";
+import { Prisma, Transaction } from "@prisma/client";
 import profileRepository from "../repository/profile-repository";
 import transactionRepository from "../repository/transaction-repository";
 import { TransactionDTO } from "../DTO/transaction-dto";
@@ -9,7 +9,7 @@ class TransactionService {
     if (!transaction) throw new Error("transaction not found");
     return transaction;
   }
-  async createTransaction(dto: TransactionDTO): Promise<Transaction> {
+  async createTransaction(dto: TransactionDTO[]): Promise<Prisma.BatchPayload> {
     const transaction = await transactionRepository.create(dto);
     return transaction;
   }

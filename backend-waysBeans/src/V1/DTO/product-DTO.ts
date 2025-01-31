@@ -6,7 +6,7 @@ export interface ProductDTO {
   description: string;
   price: string;
   images: ImageUrlTypes[];
-  quantity: string;
+  quantity: number;
   countItem: string;
   profileId: string;
 }

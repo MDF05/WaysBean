@@ -37,7 +37,7 @@ class AuthController {
   async checkToken(req: Request, res: Response, next: NextFunction) {
     try {
       const token = req.headers.authorization?.split("Bearer ")[1];
-      if (!token) throw new Error("token is not valid");
+      if (!token) throw new Error("unauthorized, please login again");
 
       const user: string | JwtPayload = jwt.verify(token, process.env.JWT_SECRET as string);
 

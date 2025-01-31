@@ -35,8 +35,22 @@ class CartController {
       const countItem: string = `${req.query.countItem ?? 0}`;
 
       const cart = await cartService.updateCartByCartId(+cartId, +countItem);
-      res.status(200).json(successResponse("save cart successfully", cart, 200));
+      res.status(200).json(successResponse("update cart successfully", cart, 200));
     } catch (err: unknown) {
+      if (err instanceof Error) next(createError(err.message, 402));
+      else next(createError("internal server error", 505));
+    }
+  }
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId: string = res.locals.user.id;
+      const idquery: string = `${req.query.productId}`;
+      const productId: number[] = idquery.split(",").map((id) => +id);
+
+      const cart = await cartService.deleteManyByUserIdAndProductId(+userId, productId);
+      res.status(200).json(successResponse("delete cart successfully", cart, 200));
+    } catch (err: unknown) {
+      console.log(err);
       if (err instanceof Error) next(createError(err.message, 402));
       else next(createError("internal server error", 505));
     }

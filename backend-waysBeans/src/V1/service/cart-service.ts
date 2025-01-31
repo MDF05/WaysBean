@@ -1,4 +1,4 @@
-import { Cart } from "@prisma/client";
+import { Cart, Prisma, PrismaPromise } from "@prisma/client";
 import { CartDTO } from "../DTO/cart-DTO";
 import cartRepository from "../repository/cart-repository";
 import userRepository from "../repository/user-repository";
@@ -24,6 +24,10 @@ class CartService {
 
   async updateCartByCartId(cartId: number, countItem: number): Promise<Cart> {
     const update = await cartRepository.udpateCartByCartIdPut(cartId, countItem);
+    return update;
+  }
+  async deleteManyByUserIdAndProductId(userId: number, productId: number[]): Promise<Prisma.BatchPayload> {
+    const update = await cartRepository.deleteManyByUserIdAndProductId(userId, productId);
     return update;
   }
 }

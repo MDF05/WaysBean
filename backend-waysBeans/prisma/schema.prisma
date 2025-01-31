@@ -51,7 +51,7 @@ model Product {
   name        String
   description String
   price       String
-  quantity    String
+  quantity    Int
   images      ImageProduct[]
   profileId   Int?
 
@@ -77,13 +77,21 @@ model Cart {
 }
 
 model Transaction {
-  id            Int    @id @default(autoincrement())
-  transactionId String @unique
-  profileId     Int
-  productId     Int
-  countItem     Int    @default(1)
-  paymentType   String
-  address       String
+  id Int @id @default(autoincrement())
+
+  profileId          Int
+  productId          Int
+  countItem          Int?   @default(1)
+  fraud_status       String
+  gross_amount       String
+  order_id           String
+  payment_type       String
+  status_code        String
+  status_message     String
+  transaction_id     String
+  transaction_status String
+  transaction_time   String
+  address            String
 
   profile Profile @relation(fields: [profileId], references: [id])
   product Product @relation(fields: [productId], references: [id])

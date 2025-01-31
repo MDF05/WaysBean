@@ -1,4 +1,4 @@
-import { User, Transaction } from "@prisma/client";
+import { User, Transaction, Prisma } from "@prisma/client";
 import createError from "../utils/create-error";
 import { NextFunction, Request, Response } from "express";
 import successResponse from "../utils/success-response";
@@ -20,9 +20,14 @@ class TransactionController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const user = res.locals.user;
-      const body: TransactionDTO = req.body;
-      body.profileId = user.profile.id;
-      const transactions: Transaction = await transactionService.createTransaction(body);
+      let body: TransactionDTO[] = req.body;
+      body = body.map((trans) => {
+        return {
+          ...trans,
+          profileId: user.profile.id,
+        };
+      });
+      const transactions: Prisma.BatchPayload = await transactionService.createTransaction(body);
       res.json(successResponse("data received", transactions));
     } catch (err: unknown) {
       console.log(err);

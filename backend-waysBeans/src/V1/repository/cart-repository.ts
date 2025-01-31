@@ -1,4 +1,4 @@
-import { Cart } from "@prisma/client";
+import { Cart, Prisma, PrismaPromise } from "@prisma/client";
 import prisma from "../libs/prisma";
 
 class CartRepository {
@@ -58,6 +58,16 @@ class CartRepository {
       },
       data: {
         countItem: countItem,
+      },
+    });
+  }
+  async deleteManyByUserIdAndProductId(userId: number, productId: number[]): Promise<Prisma.BatchPayload> {
+    return await prisma.cart.deleteMany({
+      where: {
+        userId: userId,
+        productId: {
+          in: productId,
+        },
       },
     });
   }

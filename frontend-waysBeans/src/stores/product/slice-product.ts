@@ -1,10 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ProductResponseDTO } from "../../DTO/product-DTO";
 import { DeleteProduct, GetProductAsync, PostProductAsync, PutProductAsync } from "./async-product";
+import { ProductDTO } from "./../../DTO/product-DTO";
 
 interface ProductState {
   loading: boolean;
   products: ProductResponseDTO;
+  filterProduct?: ProductDTO[] | null;
 }
 
 const initialState: ProductState = {
@@ -16,13 +18,53 @@ const productSlice = createSlice({
   name: "product",
   initialState: initialState,
   reducers: {
-    setProducts(state, action) {
-      state.products = action.payload;
+    setProducts(state, action: PayloadAction<ProductDTO[]>) {
+      state.products.content = action.payload;
+    },
+    setFilterProduct(state, action: PayloadAction<string | null>) {
+      let products;
+      if (action?.payload) {
+        products = (state.products.content ?? []).filter((product) => {
+          return product.name.toLowerCase().includes((action.payload ?? "").toLowerCase());
+        });
+      } else products = null;
+
+      state.filterProduct = products;
+    },
+    setMostStock(state) {
+      const data = state.products.content.sort((a, b) => parseInt(a.quantity) - parseInt(b.quantity));
+
+      state.filterProduct = data;
+    },
+    setSmallestStock(state) {
+      const data = state.products.content.sort((a, b) => parseInt(a.quantity) - parseInt(b.quantity));
+
+      state.filterProduct = data.reverse();
+    },
+    setNewsProduct(state) {
+      const data = state.products.content.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+      state.filterProduct = data;
+    },
+    setOldestProduct(state) {
+      const data = state.products.content.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+      state.filterProduct = data.reverse();
+    },
+    setHighestPrice(state) {
+      const data = state.products.content.sort((a, b) => parseInt(a.price) - parseInt(b.price));
+
+      state.filterProduct = data;
+    },
+    setLowestPrice(state) {
+      const data = state.products.content.sort((a, b) => parseInt(a.price) - parseInt(b.price));
+
+      state.filterProduct = data.reverse();
     },
   },
   extraReducers(builder) {
     builder
-      .addCase(PostProductAsync.fulfilled, (state, action) => {
+      .addCase(PostProductAsync.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(PostProductAsync.pending, (state) => {
@@ -65,5 +107,5 @@ const productSlice = createSlice({
   },
 });
 
-export const { setProducts } = productSlice.actions;
+export const { setProducts, setFilterProduct, setMostStock, setSmallestStock, setNewsProduct, setOldestProduct, setHighestPrice, setLowestPrice } = productSlice.actions;
 export default productSlice.reducer;

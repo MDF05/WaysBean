@@ -5,7 +5,7 @@ import { apiV1 } from "../../lib/api-v1";
 import { isAxiosError } from "axios";
 import { toast } from "react-toastify";
 
-export const GetCartAsync = createAsyncThunk<ResponseDTO<cartDTO>, void>("/get/cart", async (data, thunkAPI) => {
+export const GetCartAsync = createAsyncThunk<ResponseDTO<cartDTO>, void>("/get/cart", async (_, thunkAPI) => {
   try {
     const res = await apiV1.get(`/cart`);
     return res.data;
@@ -34,6 +34,19 @@ export const PutCartAsyncByCartId = createAsyncThunk<ResponseDTO<cartTypes>, { c
   try {
     const res = await apiV1.put(`/cart/${data.cartId}?countItem=${data.countItem}`);
     toast.success("successfully updated cart");
+    return res.data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      toast.error(error?.response?.data.message);
+    } else toast.error(" add cart data failed, please try again");
+    return thunkAPI.rejectWithValue("failed post data");
+  }
+});
+
+export const deleteManyCartByCartsIdAndUserIdAsync = createAsyncThunk<ResponseDTO<cartTypes>, number[]>("/delete/many", async (data, thunkAPI) => {
+  try {
+    const res = await apiV1.delete(`/cart/many?productId=${data.toString()}`);
+    // toast.success("successfully updated cart");
     return res.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

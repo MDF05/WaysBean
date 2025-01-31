@@ -23,11 +23,13 @@ export default function useBaseLayout() {
     (async () => {
       if (!token) return navigate("/login");
       else {
-        const info: CheckTokenDTO = await dispatch(checkAuth("check")).unwrap();
-        await dispatch(getProfileByIdUserLogin());
-        await dispatch(GetCartAsync()).unwrap();
+        const info: CheckTokenDTO = await dispatch(checkAuth()).unwrap();
 
         if (info.token == "invalid") return navigate("/login");
+        else if (info.token) {
+          await dispatch(GetCartAsync()).unwrap();
+          await dispatch(getProfileByIdUserLogin());
+        }
       }
       if (state.user?.role === "ADMIN") return navigate("/admin");
     })();

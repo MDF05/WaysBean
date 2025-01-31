@@ -11,7 +11,7 @@ class ProductRepository {
         profileId: +profileId,
         images: {
           createMany: {
-            data: images,
+            data: images, // Menambahkan gambar baru
           },
         },
       },
@@ -27,11 +27,19 @@ class ProductRepository {
   }
 
   async update(productDTO: ProductDTO, productId: number): Promise<Product> {
-    const { images, profileId, ...otherProductDto } = productDTO;
+    const { images, profileId, quantity, ...otherProductDto } = productDTO;
+
     return await prisma.product.update({
       where: { id: productId },
       data: {
         ...otherProductDto,
+        quantity: +quantity,
+        images: {
+          deleteMany: {},
+          createMany: {
+            data: images,
+          },
+        },
       },
     });
   }

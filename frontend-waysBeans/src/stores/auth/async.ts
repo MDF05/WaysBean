@@ -36,7 +36,7 @@ export const loginAsync = createAsyncThunk<LoginResponseDTO, LoginSchema>("auth/
   }
 });
 
-export const checkAuth = createAsyncThunk<CheckTokenDTO, string>("/checkAuth", async (data, thunkAPI) => {
+export const checkAuth = createAsyncThunk<CheckTokenDTO, void>("/checkAuth", async (_, thunkAPI) => {
   try {
     const token = localStorage.getItem("token");
 
@@ -47,7 +47,7 @@ export const checkAuth = createAsyncThunk<CheckTokenDTO, string>("/checkAuth", a
     const res = await apiV1.get("/check");
 
     if (!res.data.content) {
-      return thunkAPI.rejectWithValue("no user");
+      return thunkAPI.rejectWithValue("not authenticated");
     }
     return thunkAPI.fulfillWithValue(res.data.content);
   } catch (error: unknown) {

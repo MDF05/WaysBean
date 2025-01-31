@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { apiV1 } from "../../lib/api-v1";
 import { ProfileResponseDTO } from "../../DTO/profile-DTO";
 
-export const getProfileByIdUserLogin = createAsyncThunk<Omit<ProfileResponseDTO, "transaction">, void>("profile/create", async (data, thunkAPI) => {
+export const getProfileByIdUserLogin = createAsyncThunk<Omit<ProfileResponseDTO, "transaction">, void>("profile/create", async (_, thunkAPI) => {
   try {
     const res = await apiV1.get("/profile");
 
@@ -24,7 +24,7 @@ export const getProfileById = createAsyncThunk<ProfileResponseDTO, { profileId: 
     return res.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      toast.error(error?.response?.data.message);
+      toast.error("not authenticated, please login first");
     } else toast.error("get data failed, please try again");
     return thunkAPI.rejectWithValue("failed get data");
   }

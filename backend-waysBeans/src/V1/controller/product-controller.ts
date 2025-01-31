@@ -10,6 +10,7 @@ class ProductController {
   async post(req: Request, res: Response, next: NextFunction) {
     try {
       const productDTO: ProductDTO = req.body;
+      productDTO.quantity = parseInt(`${productDTO.quantity}`);
 
       const images: ImageUrlTypes[] | null = await cloudinary.uploader(req.files as any);
       if (images) productDTO.images = images;
@@ -37,6 +38,10 @@ class ProductController {
   async putProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const productDTO: ProductDTO = req.body;
+
+      const images: ImageUrlTypes[] | null = await cloudinary.uploader(req.files as any);
+      if (images) productDTO.images = images;
+
       const productId: string = req.params.productId;
       const product = await productService.putProduct(productDTO, +productId);
 

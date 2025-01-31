@@ -10,6 +10,7 @@ import { getProfileByIdUserLogin } from "../../../../stores/profile/async-profil
 import { toast } from "react-toastify";
 import { postTransactionAsync } from "../../../../stores/transaction/async-transaction";
 import { TransactionDTO } from "../../../../DTO/transaction-DTO";
+import { GetProductAsync } from "../../../../stores/product/async-product";
 
 declare global {
   interface Window {
@@ -17,7 +18,7 @@ declare global {
   }
 }
 
-export default function ButtonCheckout(): React.ReactNode {
+export default function ButtonCheckout({ onClose }: { onClose?: () => void }): React.ReactNode {
   const { state } = useLocation();
   const { product }: { product: ProductDTO } = state ?? ({} as ProductDTO);
   const { handleSubmit, setValue } = useForm<CheckOutSchema>({ resolver: zodResolver(checkoutSchema) });
@@ -35,7 +36,7 @@ export default function ButtonCheckout(): React.ReactNode {
   setValue("products", [{ id: product?.id, name: product?.name, description: product?.description, price: product?.price, countItem: "1", images: "" }]);
 
   async function onCheckOut(event: any) {
-    event.stopPropagation();
+    // event.stopPropagation();
     try {
       await dispatch(getProfileByIdUserLogin());
       if (!stateProfile?.profile?.content?.profile?.address) {
@@ -45,17 +46,27 @@ export default function ButtonCheckout(): React.ReactNode {
       const data = await dispatch(PostMidtransPayment(event)).unwrap();
       if (data.succes)
         window.snap.pay(`${data.content.token}`, {
-          onSuccess: (res: any) => {
-            console.log("Success", res);
+          onSuccess: async (res: any) => {
+            const { fraud_status, gross_amount, order_id, payment_type, status_code, status_message, transaction_id, transaction_status, transaction_time } = res;
 
             const transactionDTO: TransactionDTO = {
               address: stateProfile?.profile?.content?.profile?.address ?? "",
               productId: product?.id,
-              transactionId: res.order_id,
-              paymentType: res.payment_type,
+              fraud_status,
+              gross_amount,
+              order_id,
+              payment_type,
+              status_code,
+              status_message,
+              transaction_id,
+              transaction_status,
+              transaction_time,
+              profileId: +(auth.user?.profile.id || 0),
             };
 
-            dispatch(postTransactionAsync(transactionDTO));
+            await dispatch(postTransactionAsync([transactionDTO]));
+            await dispatch(GetProductAsync());
+            if (onClose) onClose();
           },
           // onPending: (res: any) => {
           //   console.log("Pending", res);

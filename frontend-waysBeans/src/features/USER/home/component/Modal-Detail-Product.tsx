@@ -31,7 +31,7 @@ export default function ModalDetailProduct({ isOpen, onClose }: ModalDetailProdu
         <ModalOverlay />
         <ModalContent bg={"#1A202C"}>
           <Flex width={"100%"} alignItems={"center"} my={"80px"} direction={"column"}>
-            <Flex width={"80%"} justifyContent={"start"} mb={"10px"}>
+            <Flex width={{ base: "95%", lg: "80%" }} justifyContent={"start"} mb={"10px"}>
               <Button
                 onClick={onClose}
                 border={"2px solid skyblue"}
@@ -46,19 +46,20 @@ export default function ModalDetailProduct({ isOpen, onClose }: ModalDetailProdu
               <Box as={Tooltip} id="button-back-product" bgColor={"brand.active !"} />
             </Flex>
             <Grid
-              width={"80%"}
+              width={{ base: "100%", lg: "80%" }}
               bg={"brand.blur.background"}
               blur={"brand.blur.webkit"}
               border={"brand.blur.border"}
               backdropFilter={"brand.blur.backdrop"}
-              gridTemplateColumns={`45% 45%`}
+              gridTemplateColumns={{ base: "100%", lg: `45% 45%` }}
               justifyContent={"space-between"}
-              padding={"20px 50px"}
+              padding={{ base: "20px 20px", md: "20px 50px" }}
+              gap={{ base: "40px", md: "0px" }}
             >
               <Flex>
-                <Box as={AwesomeSlider} width={"100%"} height={"390px"}>
+                <Box as={AwesomeSlider} width={"100%"} height={{ base: "50vh", md: "70vh", lg: "70vh" }}>
                   {product?.images?.map((image: ImageDTO, index: number) => {
-                    return <Image data-src={image.imageUrl ?? noImage} width={"100%"} key={index}></Image>;
+                    return <Image data-src={image?.imageUrl ?? noImage} width={"100%"} key={index}></Image>;
                   })}
                 </Box>
               </Flex>
@@ -77,7 +78,7 @@ export default function ModalDetailProduct({ isOpen, onClose }: ModalDetailProdu
                 <Flex flexDirection={"column"} w={"full"} gap={"10px"}>
                   {stateUser.user?.role != "ADMIN" && (
                     <>
-                      <ButtonCheckout></ButtonCheckout>
+                      <ButtonCheckout onClose={onClose}></ButtonCheckout>
                       <ButtonAddCart productId={`${product?.id}`} />
                     </>
                   )}
