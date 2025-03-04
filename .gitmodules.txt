@@ -1,0 +1,8 @@
+[submodule "Frontend-WaysBeans"]
+	path = Frontend-WaysBeans
+	url = https://github.com/MDF05/Frontend-WaysBeans.git
+
+
+[submodule "Backend-WaysBeans"]
+	path = Backend-WaysBeans
+	url = https://github.com/MDF05/Backend-WaysBeans.git
